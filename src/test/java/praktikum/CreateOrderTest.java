@@ -7,14 +7,14 @@ import model.Ingredients;
 import model.RandomData;
 import model.UserData;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static praktikum.UserSteps.*;
-import static praktikum.UserSteps.checkStatusCode;
+
 
 public class CreateOrderTest extends BaseClass {
     public UserData randomUser;
@@ -22,23 +22,22 @@ public class CreateOrderTest extends BaseClass {
     private UserData user;
     private String accessToken;
 
+    @Before
+    public void createUserAndLogin() {
+        randomUser = RandomData.generateRandomUser();
+        Response response = UserSteps.createUser(randomUser.getEmail(), randomUser.getPassword(), randomUser.getName(), 200);
+        UserSteps.checkStatusCode(response, 200);
+        System.out.println(response.body().asString());
+
+        Response loginResponse = UserSteps.loginUser(randomUser.getEmail(), randomUser.getPassword());
+        UserSteps.checkStatusCode(loginResponse, 200);
+
+        accessToken = loginResponse.jsonPath().getString("accessToken");
+    }
     @Test
     @DisplayName("Создание заказа с добавлением существующих ингредиентов")
     @Description("Создаём заказ, добавляя ингредиенты по одному в список")
     public void testCreateOrder() {
-
-        randomUser = RandomData.generateRandomUser();
-        user = randomUser;
-
-        Response response = (Response) createUser(randomUser.getEmail(), randomUser.getPassword(),randomUser.getName(), 200);
-        checkStatusCode(response, 200);
-
-        Response loginResponse = loginUser(randomUser.getEmail(), randomUser.getPassword());
-        checkStatusCode(loginResponse, 200);
-
-        System.out.println("Login response body: " + loginResponse.getBody().asString());
-        accessToken = loginResponse.jsonPath().getString("accessToken");
-        String refreshToken = loginResponse.jsonPath().getString("refreshToken");
 
         List<Ingredients> ingredientsList = GetIngredients.getAllIngredients();
         List<String> ingredientIds = UserSteps.collectIngredientIds(ingredientsList);
@@ -67,19 +66,6 @@ public class CreateOrderTest extends BaseClass {
     @Description("Создаём заказ, с пустым списком ингредиентов")
     public void testCreateOrderWithoutIngredients() {
 
-        randomUser = RandomData.generateRandomUser();
-        user = randomUser;
-
-        Response response = (Response) createUser(randomUser.getEmail(), randomUser.getPassword(),randomUser.getName(), 200);
-        checkStatusCode(response, 200);
-
-        Response loginResponse = loginUser(randomUser.getEmail(), randomUser.getPassword());
-        checkStatusCode(loginResponse, 200);
-
-        System.out.println("Login response body: " + loginResponse.getBody().asString());
-        accessToken = loginResponse.jsonPath().getString("accessToken");
-        String refreshToken = loginResponse.jsonPath().getString("refreshToken");
-
         List<String> zeroIngredients = new ArrayList<>();
 
         Response orderResponse = CreateOrder.createOrderWithAuthorization(zeroIngredients, accessToken);
@@ -104,18 +90,6 @@ public class CreateOrderTest extends BaseClass {
     @DisplayName("Создание заказа с невалидным хешем ингредиента ")
     @Description("Передаем в теле несуществующий хеш ингредиента, возвращается ошибка")
     public void testCreateOrderWithInvalidIngredientId() {
-        randomUser = RandomData.generateRandomUser();
-        user = randomUser;
-
-        Response response = (Response) createUser(randomUser.getEmail(), randomUser.getPassword(),randomUser.getName(), 200);
-        checkStatusCode(response, 200);
-
-        Response loginResponse = loginUser(randomUser.getEmail(), randomUser.getPassword());
-        checkStatusCode(loginResponse, 200);
-
-        System.out.println("Login response body: " + loginResponse.getBody().asString());
-        accessToken = loginResponse.jsonPath().getString("accessToken");
-        String refreshToken = loginResponse.jsonPath().getString("refreshToken");
 
         List<String> fakeIngredients = new ArrayList<>();
         fakeIngredients.add("invalid_ingredient_hash");
