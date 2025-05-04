@@ -4,14 +4,12 @@ import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import model.RandomData;
-import model.UserData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
-import static praktikum.UserSteps.*;
-import static praktikum.UserSteps.createUser;
+
 
 public class LoginUserTest extends Model {
 
@@ -44,6 +42,7 @@ public class LoginUserTest extends Model {
     public void testUserAuthorizationWithInvalidEmail() {
         Response loginResponse = UserSteps.loginUser("wrongemail@mail.com", randomUser.getPassword());
         UserSteps.checkStatusCode(loginResponse, 401);
+        UserSteps.checkErrorMessage(loginResponse, "email or password are incorrect");
     }
 
     @Test
@@ -52,6 +51,7 @@ public class LoginUserTest extends Model {
     public void testUserAuthorizationWithInvalidPassword() {
         Response loginResponse = UserSteps.loginUser(randomUser.getEmail(), "wrongPassword");
         UserSteps.checkStatusCode(loginResponse, 401);
+        UserSteps.checkErrorMessage(loginResponse, "email or password are incorrect");
     }
 
     @Test
@@ -60,6 +60,7 @@ public class LoginUserTest extends Model {
     public void testUserAuthorizationWithoutEmail() {
         Response loginResponse = UserSteps.loginUser("", randomUser.getPassword());
         UserSteps.checkStatusCode(loginResponse, 401);
+        UserSteps.checkErrorMessage(loginResponse, "email or password are incorrect");
     }
 
     @Test
@@ -68,6 +69,7 @@ public class LoginUserTest extends Model {
     public void testUserAuthorizationWithoutPassword() {
         Response loginResponse = UserSteps.loginUser(randomUser.getEmail(), "");
         UserSteps.checkStatusCode(loginResponse, 401);
+        UserSteps.checkErrorMessage(loginResponse, "email or password are incorrect");
     }
 
     @After

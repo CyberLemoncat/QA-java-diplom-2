@@ -57,4 +57,8 @@ public class UserSteps {
     public static Response getOrderWithAuthorization(String accessToken){
         return GetUserOrder.getUserOrder(accessToken);
     }
+    @Step("Проверка сообщения об ошибке")
+    public static void checkErrorMessage(Response response, String expectedMessage) {
+        response.then().body("message", equalTo(expectedMessage));
+    }
 }
